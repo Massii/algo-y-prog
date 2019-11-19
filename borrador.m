@@ -2,6 +2,10 @@ pkg load symbolic
 pkg load control
 pkg load specfun
 
+%h = s^2/(s^2 + a*s + b), a = 3510, b = 1.004*10^7
+
+a = 3510;
+b = 1.004*10^7;
 
 s = tf('s');
 
@@ -47,7 +51,7 @@ figure()
 
 %%%
 %Calculo con wolfram la forma general de la antitransformada de 
-%xh = s^2/(s^2 + a*s + b) = s^2/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
+%h = s^2/(s^2 + a*s + b) = s^2/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
 % Linv {s^2/((s-a)(s-b))} = δ(t) + (a^2*e^(a*t))/(a - b) - (b^2*e^(b*t))/(a - b)
 poles = [roots(h_d)]';
 p1 = poles(1);
@@ -71,3 +75,10 @@ figure()
  plot(t,z_step);
  title('Respuesta al escalón');
  axis([0 0.003])
+ 
+ %%DETERMINACION DE COMPONENTES
+ %a = (c1 + c2 + c3)/(r2*c2*c3);
+ %b = 1/(r1*r2*c2*c3);
+ c = 10^(-5)/(f0);
+ r1 = a/(3*c*w0^2);
+ r2 = 1/(b*r1*c^2);
