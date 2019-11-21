@@ -6,7 +6,10 @@ clc
 %cargo paquetes
 pkg load symbolic
 pkg load control
-pkg load specfun
+%pkg load specfun
+
+graphics_toolkit('gnuplot');
+%graphics_toolkit('qt');
 
 %% Algunas definiciones
 w0 = sqrt(1.004*10^7);
@@ -34,98 +37,186 @@ h = (h_n*s_vec)/(h_d*s_vec);
 
 
 %% -----------------Hago el Bode
-[Modulo_ideal,fase_ideal,w_ideal] = bode(h);
-% Bode devuelve un vector de modulo, fase y la frecuencia angular a la que calcula estos valores
-Modulo_ideal_dB = 20*log10(Modulo_ideal); % Lo pasamos de modulo a decibeles
-
-figure()
-semilogx(w_ideal,Modulo_ideal_dB) % Grafico semilogaritmico, con log en el eje x
-xlabel('Pulsacion [rad/s]') % Titulo del eje x
-ylabel('|H(jw)| [dB]') % Titulo del eje y
-title('Bode de modulo transferencia ideal') % Titulo del grafico entero
-grid on % Agrega grilla para visualizar mejor
-axis([10^1 10^5 -25 5]) % Rango visible de la figura
-
-figure()
-semilogx(w_ideal,fase_ideal)
-xlabel('Pulsacion [rad/s]')
-ylabel('Arg(H(jw)) [°]')
-title('Bode de fase de transferencia ideal')
-grid on
-
-
-%%-------------------Respuesta al escalon
-[Y_step_ideal,T_step_ideal] = step(h);
-figure()
-  plot(T_step_ideal, Y_step_ideal)
-  title('Respuesta al escalon,de transferencia ideal')
-  xlabel ('tiempo [s]');
-  ylabel ('Tension [V]');
-  legend ('respuesta ideal ');
-  grid minor
-
-%%--Otra forma de obtener la respuesta al escalon
-%H = h
-%si u = escalon entonces U = 1/s entonces Y = H*U = H/s
-%Calculo con wolfram la forma general de la antitransformada de Y
-%Y = s/(s^2 + a*s + b) = s/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
-% Linv {s/((s-a)(s-b))} = (a*e^(a*t))/(a - b) - (b*e^(b*t))/(a - b)
-
-##z_step = (p1/(p1-p2))*e.^(p1*t) - (p2/(p1-p2))*e.^(p2*t);
-##figure()
-## plot(t,z_step);
-## title('Respuesta al escalón, de la transferencia');
-## axis([0 0.003])
-  
-%%-----
-
-%%-------------------Respuesta al impulso-----------
-%Como no funciona con la funcion impulse...
-%Calculo con Wolfram, Matlab y "manualmente" la antitransformada de H
-%H = s^2/(s^2 + 3150*s + 1.004*10^7)
-%Obtengo la misma respuesta con Wolfram que  manualmente
-%
-
-t = 0:0.0001:0.008;
-##%%--Wolfram
-##zw = dirac(t) - (1755 - 735.347*i)*e.^((-1755 - 2638.18*i)*t).*((0.701314 + 0.712852*i) + e.^((5276.35*i)*t));
+##[Modulo_ideal,fase_ideal,w_ideal] = bode(h);
+##% Bode devuelve un vector de modulo, fase y la frecuencia angular a la que calcula estos valores
+##Modulo_ideal_dB = 20*log10(Modulo_ideal); % Lo pasamos de modulo a decibeles
 ##
 ##figure()
-## plot(t,zw);
-## title('Wolfram');
+##semilogx(w_ideal,Modulo_ideal_dB) % Grafico semilogaritmico, con log en el eje x
+##xlabel('Pulsacion [rad/s]') % Titulo del eje x
+##ylabel('|H(jw)| [dB]') % Titulo del eje y
+##title('Bode de modulo transferencia ideal') % Titulo del grafico entero
+##grid on % Agrega grilla para visualizar mejor
+##axis([10^1 10^5 -25 5]) % Rango visible de la figura
+##close;
+##
+##figure()
+##semilogx(w_ideal,fase_ideal)
+##xlabel('Pulsacion [rad/s]')
+##ylabel('Arg(H(jw)) [°]')
+##title('Bode de fase de transferencia ideal')
+##grid on
+##close;
+##
+## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+## %%%%%%%%%%%%%%-------------------RESPUESTAS----------------------%%%%%%%%%%%%%%%%
+## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+##
+##%%-------------------Respuesta al escalon
+##[Y_step_ideal,T_step_ideal] = step(h);
+##figure()
+##  plot(T_step_ideal, Y_step_ideal)
+##  title('Respuesta al escalon,de transferencia ideal')
+##  xlabel ('tiempo [s]');
+##  ylabel ('Tension [V]');
+##  legend ('respuesta ideal ');
+##  grid minor
+## close 
+##
+##%%--Otra forma de obtener la respuesta al escalon
+##%H = h
+##%si u = escalon entonces U = 1/s entonces Y = H*U = H/s
+##%Calculo con wolfram la forma general de la antitransformada de Y
+##%Y = s/(s^2 + a*s + b) = s/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
+##% Linv {s/((s-a)(s-b))} = (a*e^(a*t))/(a - b) - (b*e^(b*t))/(a - b)
+##
+####z_step = (p1/(p1-p2))*e.^(p1*t) - (p2/(p1-p2))*e.^(p2*t);
+####figure()
+#### plot(t,z_step);
+#### title('Respuesta al escalón, de la transferencia');
+#### axis([0 0.003])
+##  
+##%%-----
+##
+##%%-------------------Respuesta al impulso-----------
+##%Como no funciona con la funcion impulse...
+##%Calculo con Wolfram, Matlab y "manualmente" la antitransformada de H
+##%H = s^2/(s^2 + 3150*s + 1.004*10^7)
+##%Obtengo la misma respuesta con Wolfram que  manualmente
+##%
+##
+##%t = 0:0.0001:0.008;
+##t = 0:0.0001:1;
+####%%--Wolfram
+####zw = dirac(t) - (1755 - 735.347*i)*e.^((-1755 - 2638.18*i)*t).*((0.701314 + 0.712852*i) + e.^((5276.35*i)*t));
+####
+####figure()
+#### plot(t,zw);
+#### title('Wolfram');
+##
+##%δ(t) - (1755 - 735.347*i)*e^((-1755 - 2638.18*i)*t)*((0.701314 + 0.712852*i) + e^((5276.35 i)*t))
+##
+##
+##%%--Matlab ---------------MAL LOS DATOS-- USE a = 3150 en lugar de 3510--------- Borrar los %%
+##%%figure()
+##%%title('Matlab')
+##%δ(t) - 3120*e^(-1575*t)*(cos(25*12095^(1/2)*t) + (4063*12095^(1/2)*sin(25*12095^(1/2)*t))/761985)
+##
+##%%zm = -dirac(t) + 3120*e.^(-1575*t).*(cos(25*12095^(1/2)*t) - (4063*12095^(1/2)*sin(25*12095^(1/2)*t))/761985);
+##%en milisegundos
+##%t = 0:0.001:3;
+##%z = dirac(t/1000) - 3120*e.^(-1575*t/1000).*(cos(25*12095^(1/2)*t/1000) + (4063*12095^(1/2)*sin(25*12095^(1/2)*t/1000))/761985);
+##
+##%%plot(t,zm);
+##
+##%%--Manualmente
+##%Calculo con wolfram la forma general de la antitransformada de 
+##%h = s^2/(s^2 + a*s + b) = s^2/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
+##% Linv {s^2/((s-a)(s-b))} = δ(t) + (a^2*e^(a*t))/(a - b) - (b^2*e^(b*t))/(a - b)
+##poles = [roots(h_d)]';
+##p1 = poles(1);
+##p2 = poles(2);
+##zp = dirac(t) + (p1^2/(p1-p2))*e.^(p1*t) - (p2^2/(p1-p2))*e.^(p2*t);
+##
+##figure()
+## %plot(t,zp);
+## title('Respuesta al impulso, de transferencia ideal');
+## xlabel ('tiempo [s]');
+## ylabel ('Tension [V]');
+## legend ('respuesta ideal');
+## axis([0 0.004]);
+## grid minor
+## close;
 
-%δ(t) - (1755 - 735.347*i)*e^((-1755 - 2638.18*i)*t)*((0.701314 + 0.712852*i) + e^((5276.35 i)*t))
+
+ 
+
+ % Respuesta a cuadradas:
+ %%1
+ % Defino una cuadrada de periodo 1/f0 y dura 5 periodos
+ [cuad1,t] = gensig('SQUARE' , 10/f0 , 50/f0, 0.0001); % Periodo de la cuadrada = 10/f0, duracion de la senial 5/f0
+ %Ahora busco la respuesta al filtro con esto:
+ figure()
+ [V_cuad1_f0_ideal,t_cuad1_f0_ideal] = lsim(h,cuad1,t);% Obtengo la respuesta a la senial 'cuad' 
+  plot(t_cuad1_f0_ideal,V_cuad1_f0_ideal,'-b')
+  hold on % Permite graficar varias curvas en la misma figura
+  plot(t,cuad1,'-r') % '-r' para definir el color rojo
+  xlabel('Tiempo [s]')
+  ylabel('Tension [V]')
+  title('Respuesta a la señal cuadrada, periodo T = 10/f0; transferencia ideal')
+  grid on
+  axis([0 0.05 -1.2 1.2])
+  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+  %print('/home/massimo/Escritorio/ADC/TP/Desarrollo/Respuestas_ideales/zzx.png');
+ %close
+ 
+ %%2
+ % Defino una cuadrada de periodo 1/f0 y dura 5 periodos
+ [cuad2,t] = gensig('SQUARE' , 1/f0 , 5/f0); % Periodo de la cuadrada = 1/f0, duracion de la senial 5/f0
+ %Ahora busco la respuesta al filtro con esto:
+ figure()
+ [V_cuad2_f0_ideal,t_cuad2_f0_ideal] = lsim(h,cuad2,t);% Obtengo la respuesta a la senial 'cuad' 
+  plot(t_cuad2_f0_ideal,V_cuad2_f0_ideal,'-b')
+  hold on % Permite graficar varias curvas en la misma figura
+  plot(t,cuad2,'-r') % '-r' para definir el color rojo
+  xlabel('Tiempo [s]')
+  ylabel('Tension [V]')
+  title('Respuesta a la cuadrada, periodo T = 1/f0; transferencia ideal')
+  grid on
+  axis([0 0.01 -1.2 1.2])
+  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+ %close
+ 
+ %%3
+ % Defino una cuadrada de periodo 1/f0 y dura 5 periodos
+ [cuad3,t] = gensig('SQUARE' , 1/(10*f0) , 5/f0, 0.0000001); % Periodo de la cuadrada = 1/(10*f0), duracion de la senial 5/f0
+ %Ahora busco la respuesta al filtro con esto:
+ figure()
+ [V_cuad3_f0_ideal,t_cuad3_f0_ideal] = lsim(h,cuad3,t);% Obtengo la respuesta a la senial 'cuad' 
+  plot(t_cuad3_f0_ideal,V_cuad3_f0_ideal,'-b')
+  hold on % Permite graficar varias curvas en la misma figura
+  plot(t,cuad3,'-r') % '-r' para definir el color rojo
+  xlabel('Tiempo [s]')
+  ylabel('Tension [V]')
+  title('Respuesta a la cuadrada, periodo T = 1/(10*f0); transferencia ideal')
+  grid on
+  axis([0 0.006 -1.2 1.2])
+  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+%close
+
+ 
+
+ 
+ 
+ 
+ 
+ 
 
 
-%%--Matlab ---------------MAL LOS DATOS-- USE a = 3150 en lugar de 3510--------- Borrar los %%
-%%figure()
-%%title('Matlab')
-%δ(t) - 3120*e^(-1575*t)*(cos(25*12095^(1/2)*t) + (4063*12095^(1/2)*sin(25*12095^(1/2)*t))/761985)
 
-%%zm = -dirac(t) + 3120*e.^(-1575*t).*(cos(25*12095^(1/2)*t) - (4063*12095^(1/2)*sin(25*12095^(1/2)*t))/761985);
-%en milisegundos
-%t = 0:0.001:3;
-%z = dirac(t/1000) - 3120*e.^(-1575*t/1000).*(cos(25*12095^(1/2)*t/1000) + (4063*12095^(1/2)*sin(25*12095^(1/2)*t/1000))/761985);
 
-%%plot(t,zm);
 
-%%--Manualmente
-%Calculo con wolfram la forma general de la antitransformada de 
-%h = s^2/(s^2 + a*s + b) = s^2/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
-% Linv {s^2/((s-a)(s-b))} = δ(t) + (a^2*e^(a*t))/(a - b) - (b^2*e^(b*t))/(a - b)
-poles = [roots(h_d)]';
-p1 = poles(1);
-p2 = poles(2);
-zp = dirac(t) + (p1^2/(p1-p2))*e.^(p1*t) - (p2^2/(p1-p2))*e.^(p2*t);
 
-figure()
- plot(t,zp);
- title('Respuesta al impulso, de transferencia ideal');
- xlabel ('tiempo [s]');
- ylabel ('Tension [V]');
- legend ('respuesta ideal ');
- axis([0 0.004]);
- grid minor
+
+
+
+
+
+
+
 
 
  
