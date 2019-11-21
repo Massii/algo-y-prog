@@ -1,0 +1,46 @@
+close all
+clear all
+%csv_vertical = dlmread("asd.csv"," ", 1, 0 );
+
+csv_vertical = dlmread("escalon_response_1.csv",'\t', 1,0 );
+
+t = csv_vertical(:, 1);
+vo = csv_vertical(:, 2);
+vi = csv_vertical(:, 3);
+
+figure()
+hold on
+plot(t, vo);
+plot(t, vi);
+xlabel ('Tiempo [s]');
+ylabel ('Tension [V]');
+legend ('Respuesta', 'Se\ñal de entrada');
+grid on
+title('Simulación de la respuesta al escalón');
+
+print('escalon_response_1_simul.png');
+
+%------------------------------
+%{csv_vertical2 = dlmread("escalon_response_2.txt",'\t', 1,0 );
+t = csv_vertical2(:, 1);
+vo = csv_vertical2(:, 2);
+vi = csv_vertical2(:, 3);
+
+figure()
+hold on
+plot(t, vo);
+plot(t, vi);
+print('escalon_response_1.png');
+
+
+
+
+
+%%------------------------------------------
+
+%muestra_init = reshape(csv_vertical,1,[]);
+
+%t_vec = 0:(time_len/length(muestra_init)):(time_len-0.001); 
+
+%max_samp = max(muestra_init);
+%min_samp = min(muestra_init);
