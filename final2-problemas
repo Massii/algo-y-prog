@@ -9,8 +9,8 @@ pkg load symbolic
 pkg load control
 pkg load specfun
 
-graphics_toolkit('gnuplot');
-%graphics_toolkit('qt');
+%graphics_toolkit('gnuplot');
+graphics_toolkit('qt');
 
 %% Algunas definiciones
 w0 = sqrt(1.004*10^7);
@@ -39,44 +39,50 @@ h = (h_n*s_vec)/(h_d*s_vec);
 
 %% -----------------Hago el Bode
 [Modulo_ideal,fase_ideal,w_ideal] = bode(h);
-% Bode devuelve un vector de modulo, fase y la frecuencia angular a la que calcula estos valores
 Modulo_ideal_dB = 20*log10(Modulo_ideal); % Lo pasamos de modulo a decibeles
-##
+
 ##figure()
-##semilogx(w_ideal,Modulo_ideal_dB) % Grafico semilogaritmico, con log en el eje x
-##xlabel('Pulsacion [rad/s]') % Titulo del eje x
-##ylabel('|H(jw)| [dB]') % Titulo del eje y
-##title('Bode de modulo transferencia ideal') % Titulo del grafico entero
+##semilogx(w_ideal,Modulo_ideal_dB,"color", "red", "linestyle", "-") % Grafico semilogaritmico, con log en el eje x
+##xlabel('Pulsación [rad/s]')
+##ylabel('|H(jw)| [dB]') 
+##title('Bode de módulo de transferencia ideal') 
 ##grid on % Agrega grilla para visualizar mejor
+##grid minor;
 ##axis([10^1 10^5 -25 5]) % Rango visible de la figura
 ##%close;
-##print('/home/massimo/Escritorio/imaag/toolkit_gnu/bode_modulo_ideal.png');
-##
+##%fig.PaperPositionMode = 'auto';
+##%print('/home/massimo/Escritorio/imaag/qt/bode_modulo_ideal_3', 'ScreenSizeFigure','-dpng','-r0');
+##%print('/home/massimo/Escritorio/imaag/qt/bode_modulo_ideal__png_2','-S2800, 2100 ','-dpng'); %pierde calidad por algun motivo ¿?
+##print('/home/massimo/Escritorio/imaag/qt/bode_modulo_ideal', '-dpng', '-r350');
+##%print('/home/massimo/Escritorio/imaag/qt/bode_modulo_ideal_svg1', '-dsvg', '-r0');%en formato svg es indiferente NUM en -rNUM
+
 ##figure()
-##semilogx(w_ideal,fase_ideal)
-##xlabel('Pulsacion [rad/s]')
+##semilogx(w_ideal,fase_ideal,"color", "red", "linestyle", "-")
+##xlabel('Pulsación [rad/s]')
 ##ylabel('Arg(H(jw)) [°]')
 ##title('Bode de fase de transferencia ideal')
 ##grid on
-##%close;
-##print('/home/massimo/Escritorio/imaag/toolkit_gnu/bode_fase_ideal.png');
+##grid minor
+##print('/home/massimo/Escritorio/imaag/qt/bode_fase_ideal', '-dpng', '-r350');
+%close
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %%%%%%%%%%%%%%-------------------RESPUESTAS----------------------%%%%%%%%%%%%%%%%
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%-------------------Respuesta al escalon
-##[Y_step_ideal,T_step_ideal] = step(h);
+[Y_step_ideal,T_step_ideal] = step(h);
+
 ##figure()
-##  plot(T_step_ideal, Y_step_ideal)
-##  title('Respuesta al escalon, de transferencia ideal')
+##  plot(T_step_ideal, Y_step_ideal,"color", "red", "linestyle", "-")
+##  title('Respuesta al escalón, de transferencia ideal')
 ##  xlabel ('Tiempo [s]');
-##  ylabel ('Tension [V]');
-##  legend ('respuesta ideal ');
+##  ylabel ('Tensión [V]');
+##  legend ('Respuesta ideal');
 ## grid on
-##%gid minor
+##grid minor
 ## %close 
-##print('/home/massimo/Escritorio/imaag/toolkit_gnu/escalon_ideal.png');
+##print('/home/massimo/Escritorio/imaag/qt/escalon_ideal', '-dpng', '-r350');
  
 
 %%--Otra forma de obtener la respuesta al escalon
@@ -129,87 +135,91 @@ t = 0:0.0001:1;
 %Calculo con wolfram la forma general de la antitransformada de 
 %h = s^2/(s^2 + a*s + b) = s^2/((s-p1)(s-p2)), es zp donde p1 y p2 son los polos de h;
 % Linv {s^2/((s-a)(s-b))} = δ(t) + (a^2*e^(a*t))/(a - b) - (b^2*e^(b*t))/(a - b)
-##
-##poles = [roots(h_d)]';
-##p1 = poles(1);
-##p2 = poles(2);
-##zp = dirac(t) + (p1^2/(p1-p2))*e.^(p1*t) - (p2^2/(p1-p2))*e.^(p2*t);
-##
+
+poles = [roots(h_d)]';
+p1 = poles(1);
+p2 = poles(2);
+zp = dirac(t) + (p1^2/(p1-p2))*e.^(p1*t) - (p2^2/(p1-p2))*e.^(p2*t);
+
 ##figure()
-## plot(t,zp);
+## plot(t,zp,"color", "red", "linestyle", "-");
 ## title('Respuesta al impulso, de transferencia ideal');
 ## xlabel ('Tiempo [s]');
-## ylabel ('Tension [V]');
-## legend ('respuesta ideal');
+## ylabel ('Tensión [V]');
+## legend ('Respuesta ideal');
 ## axis([0 0.004]);
 ## grid on
+## grid minor
 ## %close;
-##print('/home/massimo/Escritorio/imaag/toolkit_gnu/impulso_ideal.png');
+##print('/home/massimo/Escritorio/imaag/qt/impulso_ideal', '-dpng', '-r350');
 
  
-
 ##------------------------  Respuesta a cuadradas:
-
 
 #### 1
 ####  Defino una cuadrada de periodo 1/f0 y dura 5 periodos
-## [cuad1,t] = gensig('SQUARE' , 10/f0 , 50/f0, 0.0001); % Periodo de la cuadrada = 10/f0, duracion de la senial 5/f0
-## %Ahora busco la respuesta al filtro con esto:
-## figure()
-## [V_cuad1_f0_ideal,t_cuad1_f0_ideal] = lsim(h,cuad1,t);% Obtengo la respuesta a la senial 'cuad' 
-##  plot(t_cuad1_f0_ideal,V_cuad1_f0_ideal,'-b')
-##  hold on % Permite graficar varias curvas en la misma figura
-##  plot(t,cuad1,'-r') % '-r' para definir el color rojo
-##  xlabel('Tiempo [s]')
-##  ylabel('Tension [V]')
-##  title('Respuesta a la señal cuadrada, periodo T = 10/f0; transferencia ideal')
-##  grid on
-##  axis([0 0.05 -1.2 1.2])
-##  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
-##  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
-## print('/home/massimo/Escritorio/imaag/cuadrada_0.1f0_ideal.png');
-##% close
-##
-#### 
+
+[cuad1,t] = gensig('SQUARE' , 10/f0 , 50/f0, 0.0001); % Periodo de la cuadrada = 10/f0, duracion de la senial 5/f0
+[V_cuad1_f0_ideal,t_cuad1_f0_ideal] = lsim(h,cuad1,t); 
+
+##figure()
+## plot(t_cuad1_f0_ideal,V_cuad1_f0_ideal, "color", "red");
+## hold on
+## plot(t,cuad1,':b');
+## xlabel('Tiempo [s]')
+## ylabel('Tensión [V]')
+## title('Respuesta a la señal cuadrada, período T = 10/f0; transferencia ideal')
+## grid on
+## grid minor
+## axis([0 0.05 -1.2 1.2])
+## legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+## hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+## print('/home/massimo/Escritorio/imaag/qt/cuadrada_0.1f0_ideal', '-dpng', '-r350');
+
+% close
+
+
 #### 2
 ####  Defino una cuadrada de periodo 1/f0 y dura 5 periodos
-##
-##[cuad2,t] = gensig('SQUARE' , 1/f0 , 5/f0); % Periodo de la cuadrada = 1/f0, duracion de la senial 5/f0
-##%Ahora busco la respuesta al filtro con esto:
-## figure()
-## [V_cuad2_f0_ideal,t_cuad2_f0_ideal] = lsim(h,cuad2,t);% Obtengo la respuesta a la senial 'cuad' 
-##  plot(t_cuad2_f0_ideal,V_cuad2_f0_ideal,'-b')
-##  hold on % Permite graficar varias curvas en la misma figura
-##  plot(t,cuad2,'-r') % '-r' para definir el color rojo
-##  xlabel('Tiempo [s]')
-##  ylabel('Tension [V]')
-##  title('Respuesta a la cuadrada, periodo T = 1/f0; transferencia ideal')
-##  grid on
-##  axis([0 0.01 -1.3 1.3])
-##  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
-##  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
-##  print('/home/massimo/Escritorio/imaag/cuadrada_f0_ideal.png');
-##
-##  % close
 
- 
-#### 3
-####  Defino una cuadrada de periodo 1/f0 y dura 5 periodos
+[cuad2,t] = gensig('SQUARE' , 1/f0 , 5/f0); % Periodo de la cuadrada = 1/f0, duracion de la senial 5/f0
+[V_cuad2_f0_ideal,t_cuad2_f0_ideal] = lsim(h,cuad2,t);% Obtengo la respuesta a la senial 'cuad' 
+
+##figure()
+## plot(t_cuad2_f0_ideal,V_cuad2_f0_ideal,'-r')
+## hold on % Permite graficar varias curvas en la misma figura
+## plot(t,cuad2,':b') % '-r' para definir el color rojo
+## xlabel('Tiempo [s]')
+## ylabel('Tensión [V]')
+## title('Respuesta a la cuadrada, período T = 1/f0; transferencia ideal')
+## grid on
+## grid minor
+## axis([0 0.01 -1.3 1.3])
+## legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+## hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+## print('/home/massimo/Escritorio/imaag/cuadrada_f0_ideal','-dpng', '-r350');
+
+ % close
+
+
+###### 3
+######  Defino una cuadrada de periodo 1/f0 y dura 5 periodos
 [cuad3,t] = gensig('SQUARE' , 1/(10*f0) , 5/f0, 0.000001); % Periodo de la cuadrada = 1/(10*f0), duracion de la senial 5/f0
+[V_cuad3_f0_ideal,t_cuad3_f0_ideal] = lsim(h,cuad3,t);
 
- figure()
- [V_cuad3_f0_ideal,t_cuad3_f0_ideal] = lsim(h,cuad3,t);% Obtengo la respuesta a la senial 'cuad' 
-  plot(t_cuad3_f0_ideal,V_cuad3_f0_ideal,'-b')
-  hold on % Permite graficar varias curvas en la misma figura
-  plot(t,cuad3,'-r') % '-r' para definir el color rojo
-  xlabel('Tiempo [s]')
-  ylabel('Tension [V]')
-  title('Respuesta a la cuadrada, periodo T = 1/(10*f0); transferencia ideal')
-  grid on
-  axis([0 0.006 -1.2 1.2])
-  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
-  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
-  %print('/home/massimo/Escritorio/imaag/cuadrada_10f0_ideal.png');
+##figure()
+## plot(t_cuad3_f0_ideal,V_cuad3_f0_ideal,'-r')
+## hold on % Permite graficar varias curvas en la misma figura
+## plot(t,cuad3,':b') % '-r' para definir el color rojo
+## xlabel('Tiempo [s]')
+## ylabel('Tensión [V]')
+## title('Respuesta a la cuadrada, período T = 1/(10*f0); transferencia ideal')
+## grid on
+## grid minor
+## axis([0 0.006 -1.2 1.2])
+## legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+## hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+## print('/home/massimo/Escritorio/imaag/cuadrada_10f0_ideal', '-dpng', '-r350');
 
 %close
 
@@ -219,11 +229,7 @@ t = 0:0.0001:1;
 
 
 
-
-
-
 ##---------------------------------------------------------------------------
-
 
 
 
@@ -240,140 +246,214 @@ t = 0:0.0001:1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%-------------------NORMALIZACION-----------------------%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+##
+##cn = 19.8*10^(-9);
+##r1n = 5.9*10^3;
+##r2n = 43.2*10^3;
+##
+##a_norm = (3*cn)/(r2n*cn^2);
+##b_norm = 1/(r1n*r2n*cn^2);
+## 
+##h_n_norm = [1 0 0];
+##h_d_norm = [1 a_norm b_norm];
+##
+##h_norm = (h_n_norm*s_vec)/(h_d_norm*s_vec);
+%%%%%%%%%%%%%%%%%%%-------------MEJORA--------------%%%%%%%%%%%%%
+c1 = 21.05*10^(-9);
+c2 = 20.99*10^(-9);
+c3 = 20.76*10^(-9);
 
-cn = 19.8*10^(-9);
-r1n = 5.9*10^3;
-r2n = 43.2*10^3;
+%r2n2 = 45.5*10^3;
+r2n2 = (c1+c2+c3)/(3510*c2*c3)
+r1n2 = 1/(r2n2*c2*c3*1.004*10^7);
 
-a_norm = (3*cn)/(r2n*cn^2);
-b_norm = 1/(r1n*r2n*cn^2);
+%r1n2 = 1000;
+
+a_norm2 = (c1+c2+c3)/(r2n2*c2*c3);
+b_norm2 = 1/(r1n2*r2n2*c2*c3);
+k_norm2 = c1/c2;
  
-h_n_norm = [1 0 0];
-h_d_norm = [1 a_norm b_norm];
+h_n_norm2 = [k_norm2 0 0];
+h_d_norm2 = [1 a_norm2 b_norm2];
 
-h_norm = (h_n_norm*s_vec)/(h_d_norm*s_vec);
+h_norm2 = (h_n_norm2*s_vec)/(h_d_norm2*s_vec);
 
-
+w0_norm2 = sqrt(b_norm2);
+f0_norm2 = w0_norm2/(2*pi);
+%%%%%%%%%%%%%%%%%%%-----------FIN_MEJORA------------%%%%%%%%%%%%%
 
 %%%---------------Analisis de transferencia ideal con normalizacion-------------------
 
 %%%-----------------Hago el Bode
-[Modulo_ideal_norm,fase_ideal_norm,w_ideal_norm] = bode(h_norm);
-
-%Bode devuelve un vector de modulo, fase y la frecuencia angular a la que calcula estos valores
-Modulo_ideal_dB_norm = 20*log10(Modulo_ideal_norm); % Lo pasamos de modulo a decibeles
+[Modulo_ideal_norm2,fase_ideal_norm2,w_ideal_norm2] = bode(h_norm2);
+Modulo_ideal_dB_norm2 = 20*log10(Modulo_ideal_norm2); % Lo pasamos de modulo a decibeles
 
 ##figure()
-##semilogx(w_ideal_norm,Modulo_ideal_dB_norm) % Grafico semilogaritmico, con log en el eje x
-##xlabel('Pulsacion [rad/s]') % Titulo del eje x
-##ylabel('|H(jw)| [dB]') % Titulo del eje y
-##title('Bode de modulo transferencia ideal con valores normalizados') % Titulo del grafico entero
-##grid on % Agrega grilla para visualizar mejor
+##hold on;
+##semilogx(w_ideal_norm2,Modulo_ideal_dB_norm2, '-r')
+##xlabel('Pulsación [rad/s]')
+##ylabel('|H(jw)| [dB]')
+##title('Bode de módulo transferencia ideal con valores normalizados') % Titulo del grafico entero
+##grid on
+##grid minor
 ##axis([10^1 10^5 -25 5]) % Rango visible de la figura
-##%print('/home/massimo/Escritorio/imaag/bode_modulo_ideal_norm.png');
-##%close;
+##print('/home/massimo/Escritorio/imaag/qt/bode_modulo_ideal_norm', '-dpng', '-r350');
+
+%close;
+
 
 ##figure()
-##semilogx(w_ideal_norm,fase_ideal_norm)
-##xlabel('Pulsacion [rad/s]')
+##semilogx(w_ideal_norm2,fase_ideal_norm2, '-r')
+##xlabel('Pulsación [rad/s]')
 ##ylabel('Arg(H(jw)) [°]')
 ##title('Bode de fase de transferencia ideal con valores normalizados')
 ##grid on
-##%print('/home/massimo/Escritorio/imaag/bode_fase_ideal_norm.png');
-##
-##%close;
+##grid minor
+##print('/home/massimo/Escritorio/imaag/qt/bode_fase_ideal_norm', '-dpng', '-r350');
+
+%close;
 
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## %%%%%%%%%%%%-------------------RESPUESTAS----------------------%%%%%%%%%%%%%%%%
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ##-------------------Respuesta al escalon normalizacion
-[Y_step_ideal_norm,T_step_ideal_norm] = step(h_norm);
+[Y_step_ideal_norm,T_step_ideal_norm] = step(h_norm2);
 
 ##figure()
-##  plot(T_step_ideal_norm, Y_step_ideal_norm)
-##  title('Respuesta al escalon,de transferencia ideal con valores normalizados')
-##  xlabel ('Tiempo [s]');
-##  ylabel ('Tension [V]');
-##  legend ('respuesta ideal ');
-##  grid minor
-##  %print('/home/massimo/Escritorio/imaag/escalon_ideal_norm.png');
-##  %close 
+## plot(T_step_ideal_norm, Y_step_ideal_norm,'-r')
+## title('Respuesta al escaln, de transferencia ideal con valores normalizados')
+## xlabel ('Tiempo [s]');
+## ylabel ('Tensión [V]');
+## legend ('Respuesta ideal');
+## grid minor
+## print('/home/massimo/Escritorio/imaag/qt/escalon_ideal_norm', '-dpng', '-r350');
+
+%close 
   
-## 
+ 
 ##  Respuesta a cuadradas:
 ## 1
 ##  Defino una cuadrada de periodo 10/f0 y dura 5 periodos
- [cuad1,t] = gensig('SQUARE' , 10/f0 , 50/f0, 0.0001); % Periodo de la cuadrada = 10/f0, duracion de la senial 5/f0
+[cuad1,t] = gensig('SQUARE' , 10/f0 , 50/f0, 0.0001); % Periodo de la cuadrada = 10/f0, duracion de la senial 5/f0
+[V_cuad1_f0_ideal_norm,t_cuad1_f0_ideal_norm] = lsim(h_norm2,cuad1,t);% Obtengo la respuesta a la senial 'cuad' 
+
+##figure()
+## plot(t_cuad1_f0_ideal_norm,V_cuad1_f0_ideal_norm,'-r')
+## hold on % Permite graficar varias curvas en la misma figura
+## plot(t,cuad1,':b') % '-r' para definir el color rojo
+## xlabel('Tiempo [s]')
+## ylabel('Tensión [V]')
+## title('Respuesta a la señal cuadrada, período T = 10/f0; transferencia idealcon valores normalizados')
+## grid on
+## grid minor
+## axis([0 0.05 -1.2 1.2])
+## legend('Respuesta','Entrada')
+## hold off 
+## print('/home/massimo/Escritorio/imaag/qt/cuadrada_0.1f0_ideal_norm', '-dpng', '-r350');
+
+%close
  
-## Ahora busco la respuesta al filtro con esto:
-##
-## figure()
-## [V_cuad1_f0_ideal_norm,t_cuad1_f0_ideal_norm] = lsim(h_norm,cuad1,t);% Obtengo la respuesta a la senial 'cuad' 
-##  plot(t_cuad1_f0_ideal_norm,V_cuad1_f0_ideal_norm,'-b')
-##  hold on % Permite graficar varias curvas en la misma figura
-##  plot(t,cuad1,'-r') % '-r' para definir el color rojo
-##  xlabel('Tiempo [s]')
-##  ylabel('Tension [V]')
-##  title('Respuesta a la señal cuadrada, periodo T = 10/f0; transferencia idealcon valores normalizados')
-##  grid on
-##  axis([0 0.05 -1.2 1.2])
-##  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
-##  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
-##  %print('/home/massimo/Escritorio/imaag/cuadrada_0.1f0_ideal_norm.png');
-##  %close
- 
-## 
+
 ## 2
 ##  Defino una cuadrada de periodo 1/f0 y dura 5 periodos
- [cuad2,t] = gensig('SQUARE' , 1/f0 , 5/f0); % Periodo de la cuadrada = 1/f0, duracion de la senial 5/f0
 
-## Ahora busco la respuesta al filtro con esto:
-##
-## figure()
-## [V_cuad2_f0_ideal_norm,t_cuad2_f0_ideal_norm] = lsim(h_norm,cuad2,t);% Obtengo la respuesta a la senial 'cuad' 
-##  plot(t_cuad2_f0_ideal_norm,V_cuad2_f0_ideal_norm,'-b')
-##  hold on % Permite graficar varias curvas en la misma figura
-##  plot(t,cuad2,'-r') % '-r' para definir el color rojo
-##  xlabel('Tiempo [s]')
-##  ylabel('Tension [V]')
-##  title('Respuesta a la cuadrada, periodo T = 1/f0; transferencia ideal con valores normalizados')
-##  grid on
-##  axis([0 0.01 -1.3 1.3])
-##  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
-##  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
-##  %print('/home/massimo/Escritorio/imaag/cuadrada_f0_ideal_norm.png');
-##  %close
+[cuad2,t] = gensig('SQUARE' , 1/f0 , 5/f0); % Periodo de la cuadrada = 1/f0, duracion de la senial 5/f0
+[V_cuad2_f0_ideal_norm,t_cuad2_f0_ideal_norm] = lsim(h_norm2,cuad2,t);% Obtengo la respuesta a la senial 'cuad' 
+
+##figure()
+## plot(t_cuad2_f0_ideal_norm,V_cuad2_f0_ideal_norm,'-r')
+## hold on % Permite graficar varias curvas en la misma figura
+## plot(t,cuad2,':b') % '-r' para definir el color rojo
+## xlabel('Tiempo [s]')
+## ylabel('Tensión [V]')
+## title('Respuesta a la cuadrada, período T = 1/f0; transferencia ideal con valores normalizados')
+## grid on
+## grid minor
+## axis([0 0.01 -1.3 1.3])
+## legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+## hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+## print('/home/massimo/Escritorio/imaag/qt/cuadrada_f0_ideal_norm', '-dpng', '-r350');
+
+%close
 
 
-## 
+
 ## 3
 ##  Defino una cuadrada de periodo 1/(10f0) y dura 5 periodos
+
 [cuad3,t] = gensig('SQUARE' , 1/(10*f0) , 5/f0, 0.000001); % Periodo de la cuadrada = 1/(10*f0), duracion de la senial 5/f0
+[V_cuad3_f0_ideal_norm,t_cuad3_f0_ideal_norm] = lsim(h_norm2,cuad3,t);% Obtengo la respuesta a la senial 'cuad' 
 
-## Ahora busco la respuesta al filtro con esto:
+##figure()
+## plot(t_cuad3_f0_ideal_norm,V_cuad3_f0_ideal_norm,'-r')
+## hold on % Permite graficar varias curvas en la misma figura
+## plot(t,cuad3,':b') % '-r' para definir el color rojo
+## xlabel('Tiempo [s]')
+## ylabel('Tensión [V]')
+## title('Respuesta a la cuadrada, período T = 1/(10*f0); transferencia ideal con valores normalizados')
+## grid on
+## grid minor
+## axis([0 0.006 -1.2 1.2])
+## legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
+## hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
+## print('/home/massimo/Escritorio/imaag/qt/cuadrada_10f0_ideal_norm', '-dpng', '-r350');
 
- figure()
- [V_cuad3_f0_ideal_norm,t_cuad3_f0_ideal_norm] = lsim(h_norm,cuad3,t);% Obtengo la respuesta a la senial 'cuad' 
-  plot(t_cuad3_f0_ideal_norm,V_cuad3_f0_ideal_norm,'-b')
-  hold on % Permite graficar varias curvas en la misma figura
-  plot(t,cuad3,'-r') % '-r' para definir el color rojo
-  xlabel('Tiempo [s]')
-  ylabel('Tension [V]')
-  title('Respuesta a la cuadrada, periodo T = 1/(10*f0); transferencia ideal con valores normalizados')
-  grid on
-  axis([0 0.006 -1.2 1.2])
-  legend('Respuesta','Entrada') % Agrega un cuadro aclarando que curva tiene que color (Importa el orden)
-  hold off % Permite que las curvas de ahora en mas aparezcan en otras figuras
-  %print('/home/massimo/Escritorio/imaag/cuadrada_10f0_ideal_norm.png');
-  %close
+ %close
 
 
 ##difff
 ##
 
- figure()
- plot(t_cuad3_f0_ideal,V_cuad3_f0_ideal-V_cuad3_f0_ideal_norm,'-b')
+## figure()
+## plot(t_cuad3_f0_ideal,V_cuad3_f0_ideal-V_cuad3_f0_ideal_norm,'-m')
+## print('/home/massimo/Escritorio/imaag/qt/dif_cuadrada_10f0_ideal_norm', '-dpng', '-r350');
+ 
  %close
- print('/home/massimo/Escritorio/imaag/dif_cuadrada_10f0_ideal_norm.png');
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%----MEDICIONES-----%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%----------------------BODE------------------------
+
+##csv_vertical = dlmread("/home/massimo/Escritorio/ADC/TP/Desarrollo/Mediciones/med_vec.csv",'\t', 2,0);
+##w_med = csv_vertical(:, 1);
+##vi = csv_vertical(:, 2);
+##vo = csv_vertical(:, 3);
+##
+##h_med = 20*log10(vo./vi);
+
+##figure()
+##hold on
+##semilogx(w_ideal,Modulo_ideal_dB, '-r')
+##semilogx(w_med,h_med,':b') 
+##xlabel('Pulsación [rad/s]')
+##ylabel('|H(jw)| [dB]') 
+##title('Comparación de Bode de módulo')
+##grid on 
+##grid minor;
+##axis([316 10^5 -80 20])
+##legend('Ideal', 'Medición')
+##print('/home/massimo/Escritorio/imaag/qt/bode_medicion', '-dpng', '-r350');
+
+
+
+%%%%%%%%%%%%-------------------Respuestas a curadrada------------------
+csv_cuad_1 = dlmread("/home/massimo/Escritorio/ADC/TP/Desarrollo/Mediciones/SDS00023.CSV",',', 2,0);
+t1 = csv_cuad_1(:, 1);
+vi_cuad_1 = csv_cuad_1(:, 3);
+vo_cuad_1 = csv_cuad_1(:, 2);
+
+
+pp1 = splinefit (t1, vo_cuad_1, 400); 
+xx = linspace (-0.02,  0.02, 1000);
+y1 = ppval (pp1, xx);
+
+%figure()
+plot(t1, vo_cuad_1, 'x', xx, y1, "color", 'r');
+axis([-0.02 0.02])
+print('/home/massimo/Escritorio/imaag/qt/med_cuad_1z', '-dpng', '-r350');
+
+%plot(t1, vo_cuad_1, t1, vi_cuad_1, 'b');
