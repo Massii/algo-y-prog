@@ -1,0 +1,120 @@
+close all
+clear all
+
+graphics_toolkit('qt');
+graphics_toolkit('gnuplot');
+
+
+%csv_vertical = dlmread("asd.csv"," ", 1, 0 );
+
+##csv_vertical = dlmread("escalon_response_2.txt",'\t', 1,0 );
+##t = csv_vertical(:, 1);
+##vo = csv_vertical(:, 2);
+##vi = csv_vertical(:, 3);
+##
+##figure()
+##hold on
+####plot(t, vo, "color", 'blue');
+##plot(t, vi, '-r') %plot(t, vi, "color",[0 0.5 0]);
+##plot(t, vo, ':b') 
+##
+##xlabel ('Tiempo [s]');
+##ylabel ('Tensión [V]');
+##legend ('Señal de entrada', 'Respuesta');
+##grid on
+##grid minor;
+##%axis([0 0.003]);
+
+##title('Simulación de la respuesta al escalón');
+##print('/home/massimo/Escritorio/imaag/qt/escalon_response_2_simul','-dpng', '-r350');
+
+##title('Respuesta a la señal cuadrada, período T = 1/(10*f0); simulación')
+##print('/home/massimo/Escritorio/imaag/qt/cuadrada_freq_10f0_simul','-dpng', '-r350');
+
+##title('Respuesta a la señal cuadrada, período T = 1/f0; simulación')
+##print('/home/massimo/Escritorio/imaag/qt/cuadrada_freq_f0_simul','-dpng', '-r350');
+
+##title('Respuesta a la señal cuadrada, período T = 10/f0; simulación')
+##print('/home/massimo/Escritorio/imaag/qt/cuadrada_freq_f0d_simul','-dpng', '-r350');
+
+
+%%%%%%%%%%Prueba bode
+
+csv_vertical = dlmread("prueba_bode.txt",'\t', 1,0 );
+fi = csv_vertical(:, 1);
+hsim = csv_vertical(:, 2);
+psim = csv_vertical(:, 3);
+
+figure()
+hold on
+grid ongrid minor
+xlabel('Pulsación [rad/s]')
+ylabel('|H(jw)| [dB]') 
+title('Bode de módulo de transferencia ideal') 
+##plot(t, vo, "color", 'blue');
+semilogx(fi, hsim, '-r') %plot(t, vi, "color",[0 0.5 0]);
+%plot(t, vo, ':b') 
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+##function leer()
+##x = input("","s");
+##%csv_vertical = dlmread(x,'\t', 2,0 );
+##csv_vertical = dlmread(x,',', 2,0 );
+##t = csv_vertical(:, 1);
+##vo = csv_vertical(:, 2);
+##vi = csv_vertical(:, 3);
+##
+##
+##figure()
+##hold on
+##plot(t, vo, 'color','red');
+##plot(t, vi, 'color', 'blue');
+##xlabel ('Tiempo [s]');
+##ylabel ('Tension [V]');
+##legend ('Respuesta', 'Onda de entrada');
+##grid on
+##title('Simulación de la respuesta al escalón');
+##endfunction
+
+
+%------------------------------
+##
+##fi = fopen("Bode_1.txt",'r');
+##csv_vertical = textscan(fi, '%f (%f,%f) (%f,%f)');
+##
+##f = csv_vertical(:, 1);
+##vo = csv_vertical(:, 2);
+##vi = csv_vertical(:, 3);
+##fclose(fi);
+
+%{
+figure()
+hold on
+%plot(f, vo);
+plot(f, vi);
+xlabel ('Tiempo [s]');
+ylabel ('Tension [V]');
+legend ('Respuesta', 'Onda de entrada');
+grid on
+title('Simulación de la respuesta al escalón');
+
+%print('cuadrada_freq_10f0_stabilizacion_simul.png');
+
+
+%%------------------------------------------
+
+%muestra_init = reshape(csv_vertical,1,[]);
+
+%t_vec = 0:(time_len/length(muestra_init)):(time_len-0.001); 
+
+%max_samp = max(muestra_init);
+%min_samp = min(muestra_init);
